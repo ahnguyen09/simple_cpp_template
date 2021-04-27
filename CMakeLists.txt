@@ -1,45 +1,29 @@
-# cmake_minimum_required(VERSION <specify CMake version here>)
-project(simple_cpp_template)
+﻿# MAIN/top level CMakeLists
 
+# mainly derived from
+# https://gitlab.com/CLIUtils/modern-cmake/-/tree/master/examples/extended-project
+# https://github.com/Quick-Turn-Studio/run-test-in-compile-time
+
+# using a high version for modern cmake
+cmake_minimum_required (VERSION 3.14)
+
+# set up project so that you only need to change the project name here
+set(PROJ_NAME LeetCode_Set2)
+
+project (${PROJ_NAME}
+		 LANGUAGES CXX)
+
+# enable use to use up to C++17 feathers
 set(CMAKE_CXX_STANDARD 17)
 
-enable_testing()
+# Let's cmake nicely support folders in IDEs
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# Download and unpack googletest at configure time
-configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-if(result)
-    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-endif()
-execute_process(COMMAND ${CMAKE_COMMAND} --build .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-if(result)
-    message(FATAL_ERROR "Build step for googletest failed: ${result}")
-endif()
+# this is where the main function will be
+add_subdirectory(app)
 
-# Prevent overriding the parent project's compiler/linker
-# settings on Windows
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+# this is where we build the library for both for CPP app and tests
+add_subdirectory(src)
 
-# Add googletest directly to our build. This defines
-# the gtest and gtest_main targets.
-add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
-        ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
-        EXCLUDE_FROM_ALL)
-
-# The gtest/gtest_main targets carry header search path
-# dependencies automatically when using CMake 2.8.11 or
-# later. Otherwise we have to add them here ourselves.
-if (CMAKE_VERSION VERSION_LESS 2.8.11)
-    include_directories("${gtest_SOURCE_DIR}/include")
-endif()
-
-#add_executable(simple_cpp_template src/prime_app.cpp include/primelib/prime_app.hpp)
-
-# Now simply link against gtest or gtest_main as needed. Eg
-add_executable(simple_cpp_template src/prime_app.cpp tests/prime_test.cpp include/primelib/prime_app.hpp)
-target_link_libraries(simple_cpp_template gtest_main)
-add_test(NAME prime_test COMMAND simple_cpp_template)
+# this is where google test is linked and used to do unit testing
+add_subdirectory(tests)
